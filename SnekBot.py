@@ -157,7 +157,7 @@ async def on_message(message):
             await message.channel.send('You currently have no coffee beans, but you\'ll get more soon!')
         else:
             beans = str(db.get_beans(message, conn))
-            await message.channel.send('You have ' + beans + ' coffee beans')
+            await message.channel.send('You have ' + beans + ' grams of coffee beans')
 
 
     await client.process_commands(message)

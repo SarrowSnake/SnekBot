@@ -2,3 +2,5 @@
 config.json
 
 snekbot.db
+
+utils/__pycache__/

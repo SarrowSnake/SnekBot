@@ -36,10 +36,8 @@ def check_player(message, conn):
 
         rows = cur.fetchall()
         if(len(rows) == 1):
-            print('Player ' + message.author.name + ' exists.')
             return True
         else:
-            print('Player ' + message.author.name + ' does not exist. Adding.')
             playerID = message.author.id
             cur.execute("INSERT INTO coffee(player,beans) VALUES (?,?)", (playerID,0))
             conn.commit()

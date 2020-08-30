@@ -91,10 +91,10 @@ async def on_message(message):
             await asyncio.sleep(3)
             await client.change_presence(status=discord.Status.offline)
             await asyncio.sleep(12)
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=prefix+'help'))
             async with message.channel.typing():
                 await asyncio.sleep(3)
             await message.channel.send('Don\'t do that again please :broken_heart:')
-            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=prefix+'help'))
             busy = False
 
     if message.content.startswith(prefix + 'shutdown'):

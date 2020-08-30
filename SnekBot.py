@@ -48,12 +48,16 @@ async def on_message(message):
         + '```')
 
     if message.content.startswith(prefix + 'hello'):
+        async with message.channel.typing():
+            await asyncio.sleep(3)
         await message.channel.send('Hello, ' + message.author.mention + '!')
 
     if message.content.startswith(prefix + 'getid'):
         await message.channel.send('Your ID is : ' + str(message.author.id))
 
     if message.content.startswith(prefix + 'facts'):
+        async with message.channel.typing():
+            await asyncio.sleep(5)
         with open('coffeefacts.txt') as f:
             lines = f.readlines()
         await message.channel.send(random.choice(lines))

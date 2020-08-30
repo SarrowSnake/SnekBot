@@ -1,12 +1,11 @@
 import asyncio
 import discord
+from discord.ext import commands
 import json
 import os
 import random
 from modules import Fun
 from utils import DatabaseController
-
-client = discord.Client()
 
 prefix = "$"
 dirPath = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +16,19 @@ token = config['token']
 owner_id = config['owner_id']
 db = DatabaseController
 conn = db.create_connection(dbPath)
+client = commands.Bot(command_prefix=prefix)
 busy = False
+
+
+@client.command()
+async def say(ctx, *, msg):
+    if str(ctx.author.id) == owner_id:
+        await ctx.message.delete()
+        async with ctx.channel.typing():
+            await asyncio.sleep(3)
+        await ctx.send(msg)
+    else:
+        await ctx.send('You are not authorized to use this command.')
 
 
 @client.event
@@ -38,14 +49,19 @@ async def on_message(message):
         return
 
     if message.content.startswith(prefix + 'help'):
-        await message.channel.send('List of commands :\n```'
-        + prefix + 'help : Displays this help page!\n'
-        + prefix + 'hello : Says hello!\n'
-        + prefix + 'facts : Says some coffee facts!\n'
-        + prefix + 'brew : Brews coffee for you!\n'
-        + prefix + 'boop : Boop me!\n'
-        + prefix + 'boom : Under no circumstancecs you should use this command.'
-        + '```')
+
+        helpText = str(
+        '**' + prefix + 'help** : Displays this help page!\n'
+        '**' + prefix + 'hello** : Says hello!\n'
+        '**' + prefix + 'brew** : Brews coffee for you!\n'
+        '**' + prefix + 'facts** : Says some coffee facts!\n'
+        '**' + prefix + 'countdown** : Start a 3 second countdown.\n'
+        '**' + prefix + 'ilovecoffee** : Gives you the Coffee Nerd role.\n'
+        '**' + prefix + 'ping** : Pong\n'
+        '**' + prefix + 'boop** : Boop me!\n'
+        '**' + prefix + 'boom** : Under no circumstancecs you should use this command.')
+        helpEmbed = discord.Embed(title='Commands',description=helpText,colour=0x005064)
+        await message.channel.send(embed=helpEmbed)
 
     if message.content.startswith(prefix + 'hello'):
         async with message.channel.typing():
@@ -107,7 +123,7 @@ async def on_message(message):
             await client.change_presence(status=discord.Status.offline)
             exit()
         else:
-            await message.channel.send('Access denied.')
+            await message.channel.send('You are not authorized to use this command.')
 
     if message.content.startswith(prefix + 'countdown'):
         if(busy == False):
@@ -118,9 +134,19 @@ async def on_message(message):
             await asyncio.sleep(1)
             await countdownMessage.edit(content='1')
             await asyncio.sleep(1)
-            await countdownMessage.edit(content='GO')
+            await countdownMessage.edit(content=':checkered_flag:')
             busy = False
             await asyncio.sleep(15)
             await countdownMessage.edit(content='Countdown finished.')
+
+    if message.content.startswith(prefix + 'ilovecoffee'):
+        await message.author.add_roles(discord.utils.get(message.guild.roles, name='Coffee Nerd'), reason='Role requested from user via bot command.')
+        roleEmbed = discord.Embed(title='Role Given!', description='You now have the Coffee Nerd role!', colour=0x005064)
+        await message.channel.send(embed=roleEmbed)
+
+    if message.content.startswith(prefix + 'ping'):
+        await message.channel.send('Pong!')
+
+    await client.process_commands(message)
 
 client.run(token)

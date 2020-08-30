@@ -28,3 +28,32 @@ def check_user(message, conn):
             return False
     except Error as e:
         print(e)
+
+def check_player(message, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT beans FROM coffee WHERE player = ?", (message.author.id,))
+
+        rows = cur.fetchall()
+        if(len(rows) == 1):
+            print('Player ' + message.author.name + ' exists.')
+            return True
+        else:
+            print('Player ' + message.author.name + ' does not exist. Adding.')
+            playerID = message.author.id
+            cur.execute("INSERT INTO coffee(player,beans) VALUES (?,?)", (playerID,0))
+            conn.commit()
+            return False
+    except Error as e:
+        print(e)
+
+def get_beans(message, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT beans FROM coffee WHERE player = ?", (message.author.id,))
+
+        record = cur.fetchone()
+        return record[0]
+    except Error as e:
+        print(e)
+        return 0

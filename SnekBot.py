@@ -147,6 +147,17 @@ async def on_message(message):
     if message.content.startswith(prefix + 'ping'):
         await message.channel.send('Pong!')
 
+    if message.content.startswith(prefix + 'beans'):
+        if(db.check_player(message,conn) == False):
+            print('Generating new player : ' + message.author.name)
+            await message.channel.send('Welcome new player!')
+            await message.channel.send('You currently have no coffee beans, but you\'ll get more soon!')
+        else:
+            print('Player ' + message.author.name + ' checking for beans.')
+            beans = str(db.get_beans(message, conn))
+            await message.channel.send('You have ' + beans + ' coffee beans')
+
+
     await client.process_commands(message)
 
 client.run(token)

@@ -68,7 +68,7 @@ def get_beans(message, conn):
 
 def make_beans(message, conn):
     try:
-        randNum = random.randint(-25, 50)
+        randNum = random.randint(-40, 50)
         cur = conn.cursor()
         cur.execute("SELECT beans FROM coffee WHERE player = ?", (message.author.id,))
 

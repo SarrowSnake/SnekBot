@@ -1,4 +1,5 @@
 import discord
+import random
 import sqlite3
 from sqlite3 import Error
 
@@ -45,6 +46,15 @@ def check_player(message, conn):
     except Error as e:
         print(e)
 
+def get_leaderboards(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT name, beans FROM users INNER JOIN coffee on users.id = coffee.player ORDER BY beans DESC")
+        rows = cur.fetchmany(10)
+        return rows
+    except Error as e:
+        print(e)
+
 def get_beans(message, conn):
     try:
         cur = conn.cursor()
@@ -52,6 +62,24 @@ def get_beans(message, conn):
 
         record = cur.fetchone()
         return record[0]
+    except Error as e:
+        print(e)
+        return 0
+
+def make_beans(message, conn):
+    try:
+        randNum = random.randint(-25, 50)
+        cur = conn.cursor()
+        cur.execute("SELECT beans FROM coffee WHERE player = ?", (message.author.id,))
+
+        record = cur.fetchone()
+        newBeans = record[0] + randNum
+        if(newBeans < 0):
+            newBeans = 0
+        cur.execute("UPDATE coffee SET beans=? WHERE player=?", (newBeans,message.author.id,))
+        conn.commit()
+
+        return randNum
     except Error as e:
         print(e)
         return 0

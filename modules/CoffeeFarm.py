@@ -71,8 +71,9 @@ def CoffeeFarm(client, conn):
             await ctx.message.channel.send('Start planting trees to harvest more coffee beans with ``$plant``!')
         else:
             harvestedBeans = db.harvest_beans(ctx.message, conn)
+            print(harvestedBeans)
             if(harvestedBeans >= 0):
                 ''' Harvest algorithm here '''
                 await ctx.message.channel.send('You harvested your coffee trees and got ' + str(harvestedBeans) + ' grams of beans!')
             else:
-                await ctx.message.channel.send('Something went wrong.')
+                await ctx.message.channel.send('You haven\'t ``$plant``ed any trees yet! .')

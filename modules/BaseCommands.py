@@ -83,7 +83,7 @@ def BaseCommands(client):
     @client.command()
     async def boom(ctx):
         global busy
-        if(busy == False):
+        if not(busy):
             busy = True
             await ctx.message.channel.send(':boom:')
             async with ctx.message.channel.typing():
@@ -104,7 +104,7 @@ def BaseCommands(client):
     @client.command()
     async def countdown(ctx):
         global busy
-        if(busy == False):
+        if not(busy):
             busy = True
             countdownMessage = await ctx.message.channel.send('3')
             await asyncio.sleep(1)

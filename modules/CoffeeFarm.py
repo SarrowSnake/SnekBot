@@ -15,7 +15,7 @@ def CoffeeFarm(client, conn):
 
     @client.command()
     async def beans(ctx):
-        if(db.check_player(ctx.message,conn) == False):
+        if not(db.check_player(ctx.message,conn)):
             async with ctx.message.channel.typing():
                 await asyncio.sleep(3)
             await ctx.message.channel.send('Welcome new player!')
@@ -43,7 +43,7 @@ def CoffeeFarm(client, conn):
 
     @client.command()
     async def plant(ctx):
-        if(db.check_player(ctx.message,conn) == False):
+        if not(db.check_player(ctx.message,conn)):
             async with ctx.message.channel.typing():
                 await asyncio.sleep(3)
             await ctx.message.channel.send('Welcome new player!')
@@ -57,7 +57,7 @@ def CoffeeFarm(client, conn):
 
     @client.command()
     async def harvest(ctx):
-        if(db.check_player(ctx.message,conn) == False):
+        if not(db.check_player(ctx.message,conn)):
             async with ctx.message.channel.typing():
                 await asyncio.sleep(3)
             await ctx.message.channel.send('Welcome new player!')

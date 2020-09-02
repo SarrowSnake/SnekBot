@@ -50,6 +50,8 @@ def CoffeeFarm(client, conn):
             async with ctx.message.channel.typing():
                 await asyncio.sleep(3)
             await ctx.message.channel.send('You currently have no coffee beans, but you\'ll get more soon!')
+            async with ctx.message.channel.typing():
+                await asyncio.sleep(3)
         if(db.plant_beans(ctx.message, conn)):
             await ctx.message.channel.send('Your coffee tree have been planted! Please wait a while until it\'s ready to harvest.')
         else:
@@ -69,8 +71,9 @@ def CoffeeFarm(client, conn):
             await ctx.message.channel.send('Start planting trees to harvest more coffee beans with ``$plant``!')
         else:
             harvestedBeans = db.harvest_beans(ctx.message, conn)
+            print(harvestedBeans)
             if(harvestedBeans >= 0):
                 ''' Harvest algorithm here '''
                 await ctx.message.channel.send('You harvested your coffee trees and got ' + str(harvestedBeans) + ' grams of beans!')
             else:
-                await ctx.message.channel.send('Something went wrong.')
+                await ctx.message.channel.send('You haven\'t ``$plant``ed any trees yet! .')

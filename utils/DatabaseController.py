@@ -115,7 +115,6 @@ def harvest_beans(message, conn):
             beanRate = (72/5)*multiplier
             minVal = math.floor((timeDelta/beanRate)*0.75)
             maxVal = math.floor(timeDelta/beanRate)
-            print('Min : ' + str(minVal) + ' | Max : ' + str(maxVal))
             harvestedBeans = random.randint(int(minVal), int(maxVal))
             totalBeans = harvestedBeans + int(record[1])
             cur.execute("UPDATE coffee SET plant_date=?, beans=? WHERE player=?",(0,harvestedBeans,message.author.id))

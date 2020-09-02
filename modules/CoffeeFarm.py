@@ -56,31 +56,34 @@ def CoffeeFarm(client, conn):
         leaderEmbed = discord.Embed(title='Leaderboards - Top 10',description=outputString,colour=0x005064)
         await ctx.message.channel.send(embed=leaderEmbed)
 
-    ''' Broken code ahoy
     @client.command()
     async def plant(ctx):
-        farm = CoffeeFarm
-        farm.startFarming(message)
+        if(db.check_player(ctx.message,conn) == False):
+            async with ctx.message.channel.typing():
+                await asyncio.sleep(3)
+            await ctx.message.channel.send('Welcome new player!')
+            async with ctx.message.channel.typing():
+                await asyncio.sleep(3)
+            await ctx.message.channel.send('You currently have no coffee beans, but you\'ll get more soon!')
+        else:
+            if(db.plant_beans(ctx.message, conn)):
+                await ctx.message.channel.send('Your coffee seeds have been planted! Please wait a while until it\'s ready to harvest.')
+            else:
+                await ctx.message.channel.send('You\'ve already planted a tree!')
 
     @client.command()
     async def harvest(ctx):
-        farm.harvest(message)
-    '''
-
-
-    ''' Set aside for later use
-    startTime = None
-
-    def startFarming(message):
-        startTime = time.time()
-
-    def harvest(message):
-        global startTime
-
-        harvestTime = time.time()
-        timeDelta = harvestTime-startTime
-        minHarvest = 0
-        maxHarvest = math.floor(timeDelta/100)
-        harvestRange = random.randint()
-        print(maxHarvest)
-    '''
+        if(db.check_player(ctx.message,conn) == False):
+            async with ctx.message.channel.typing():
+                await asyncio.sleep(3)
+            await ctx.message.channel.send('Welcome new player!')
+            async with ctx.message.channel.typing():
+                await asyncio.sleep(3)
+            await ctx.message.channel.send('You currently have no coffee beans, but you\'ll get more soon!')
+        else:
+            harvestedBeans = db.harvest_beans(ctx.message, conn)
+            if(harvestedBeans >= 0):
+                ''' Harvest algorithm here '''
+                await ctx.message.channel.send('You harvested your coffee trees and got ' + str(harvestedBeans) + ' grams of beans!')
+            else:
+                await ctx.message.channel.send('Something went wrong.')

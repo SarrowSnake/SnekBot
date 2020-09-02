@@ -111,9 +111,10 @@ def harvest_beans(message, conn):
             cur.execute
             timeDelta = math.floor(time.time() - record[0])
             '''The multiplier in the future will be increased as planned upgrades get implemented.'''
-            multiplier = 72/5
-            minVal = math.floor((timeDelta/multiplier)*0.5)
-            maxVal = math.floor(timeDelta/multiplier)
+            multiplier=1
+            beanRate = (72/5)*multiplier
+            minVal = math.floor((timeDelta/beanRate)*0.75)
+            maxVal = math.floor(timeDelta/beanRate)
             print('Min : ' + str(minVal) + ' | Max : ' + str(maxVal))
             harvestedBeans = random.randint(int(minVal), int(maxVal))
             totalBeans = harvestedBeans + int(record[1])

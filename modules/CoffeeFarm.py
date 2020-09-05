@@ -127,9 +127,7 @@ def CoffeeFarm(client, conn):
                 await introMessage(ctx.message)
             else:
                 currGreenBeans = db.get_beans(ctx.message, conn)
-                print(str(currGreenBeans) + '|' + str(bags))
                 if (currGreenBeans < (bags * 250)):
-                    print(str(currGreenBeans) + '' + str(bags))
                     bags = math.floor(currGreenBeans/250)
                     beansToRoast = 250 * bags
                 else:

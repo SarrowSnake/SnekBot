@@ -91,7 +91,6 @@ def plant_beans(message, conn):
         cur = conn.cursor()
         cur.execute("SELECT plant_date FROM coffee WHERE player=?", (message.author.id,))
         record = cur.fetchone()
-        print(record)
         if(record[0] == None or record[0] == 0):
             cur.execute("UPDATE coffee SET plant_date=? WHERE player=?",( time.time(),message.author.id,))
             conn.commit()
@@ -110,7 +109,6 @@ def harvest_beans(message, conn):
         if(record[0] != 0 or (record is None)):
             cur.execute
             timeDelta = math.floor(time.time() - record[0])
-            print('TimeDelta : ' + str(timeDelta))
             '''The multiplier in the future will be increased as planned upgrades get implemented.'''
             multiplier=1
             beanRate = (72/5)*multiplier
@@ -118,7 +116,7 @@ def harvest_beans(message, conn):
             maxVal = math.floor(timeDelta/beanRate)
             harvestedBeans = random.randint(int(minVal), int(maxVal))
             totalBeans = harvestedBeans + int(record[1])
-            cur.execute("UPDATE coffee SET plant_date=?, beans=? WHERE player=?",(0,harvestedBeans,message.author.id))
+            cur.execute("UPDATE coffee SET plant_date=?, beans=? WHERE player=?",(0,totalBeans,message.author.id))
             conn.commit()
             return harvestedBeans
         else:

@@ -36,8 +36,8 @@ def CoffeeFarm(client, conn):
         for result in results:
             if(result[1] > 0):
                 name = result[0]
-                beans = str(result[1])
-                outputString = outputString + ("**" + name + "** with **" + beans + "** grams of beans.\n")
+                beans = result[1]
+                outputString = outputString + ("**" + name + "** with **" + f'{beans:,}' + "** grams of beans.\n")
         leaderEmbed = discord.Embed(title='Leaderboards - Top 10',description=outputString,colour=0x005064)
         await ctx.message.channel.send(embed=leaderEmbed)
 

@@ -22,6 +22,17 @@ def BaseCommands(client):
         else:
             await ctx.message.channel.send('You are not authorized to use this command.')
 
+    @client.command()
+    async def notifyme(ctx):
+        if get(ctx.author.roles, name='Updates'):
+            await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role removed by user via bot command.')
+            roleEmbed = discord.Embed(title='Role Removed!', description='You are now opted out of announcements.', colour=0x005064)
+            await ctx.message.channel.send(embed=roleEmbed)
+        else:
+            await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role requested from user via bot command.')
+            roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=0x005064)
+            await ctx.message.channel.send(embed=roleEmbed)
+
     ''' Note self : ilovecoffee command should be moved to actual moderator modules '''
     @client.command()
     async def ilovecoffee(ctx):

@@ -4,7 +4,7 @@ import Config as conf
 from discord.ext import commands
 from modules import BaseCommands
 from modules import CoffeeFarm
-'''from modules import Moderation'''
+from modules import Moderation
 from utils import DatabaseController as db
 
 
@@ -17,10 +17,9 @@ bc = BaseCommands
 bc.BaseCommands(client)
 cf = CoffeeFarm
 cf.CoffeeFarm(client, conn)
-'''
 mod = Moderation
 mod.Moderation(client, conn)
-'''
+
 async def verify(message):
     verifyString = "I have read the rules and agree to the server's policies"
     if(message.channel.id == 750720665270878279):

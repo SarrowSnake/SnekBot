@@ -2,6 +2,7 @@ import asyncio
 import discord
 import random
 import Config as conf
+from discord.utils import get
 
 busy = False
 prefix = conf.prefix
@@ -21,12 +22,57 @@ def BaseCommands(client):
         else:
             await ctx.message.channel.send('You are not authorized to use this command.')
 
+    @client.command()
+    async def notifyme(ctx):
+        if get(ctx.author.roles, name='Updates'):
+            await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role removed by user via bot command.')
+            roleEmbed = discord.Embed(title='Role Removed!', description='You are now opted out of announcements.', colour=0x005064)
+            await ctx.message.channel.send(embed=roleEmbed)
+        else:
+            await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role requested from user via bot command.')
+            roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=0x005064)
+            await ctx.message.channel.send(embed=roleEmbed)
+
     ''' Note self : ilovecoffee command should be moved to actual moderator modules '''
     @client.command()
     async def ilovecoffee(ctx):
         await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Coffee Nerd'), reason='Role requested from user via bot command.')
         roleEmbed = discord.Embed(title='Role Given!', description='You now have the Coffee Nerd role!', colour=0x005064)
         await ctx.message.channel.send(embed=roleEmbed)
+
+    @client.command()
+    async def pronoun(ctx, arg):
+        stringRoleGiven = "You now identify as {}!"
+        stringMaleRole = 'He/Him'
+        stringFemaleRole = 'She/Her'
+        stringNBRole = 'They/Them'
+        if arg.lower() == "he" or arg.lower() == "him" or arg.lower() == "he/him":
+            if get(ctx.author.roles, name='He/Him'):
+                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role removed by user via bot command.')
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
+            else:
+                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role requested from user via bot command.')
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringMaleRole), colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
+        if arg.lower() == "she" or arg.lower() == "her" or arg.lower() == "she/her":
+            if get(ctx.author.roles, name='She/Her'):
+                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role removed by user via bot command.')
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
+            else:
+                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role requested from user via bot command.')
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringFemaleRole), colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
+        if arg.lower() == "they" or arg.lower() == "them" or arg.lower() == "they/them":
+            if get(ctx.author.roles, name='They/Them'):
+                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role removed by user via bot command.')
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
+            else:
+                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role requested from user via bot command.')
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringNBRole), colour=0x005064)
+                await ctx.message.channel.send(embed=roleEmbed)
 
         ''' Non-Essential commands '''
 

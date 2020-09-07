@@ -1,8 +1,10 @@
+import asyncio
 import discord
 import Config as conf
 from discord.ext import commands
 from modules import BaseCommands
 from modules import CoffeeFarm
+from modules import Moderation
 from utils import DatabaseController as db
 
 
@@ -15,7 +17,20 @@ bc = BaseCommands
 bc.BaseCommands(client)
 cf = CoffeeFarm
 cf.CoffeeFarm(client, conn)
+mod = Moderation
+mod.Moderation(client, conn)
 
+async def verify(message):
+    verifyString = "I have read the rules and agree to the server's policies"
+    if(message.channel.id == 750720665270878279):
+        if(message.content == verifyString or message.content == verifyString + "."):
+            await message.delete()
+            await message.author.add_roles(discord.utils.get(message.guild.roles, name='Member'), reason='User has verified.')
+            await message.author.remove_roles(discord.utils.get(message.guild.roles, name='Verification'), reason='User has verified.')
+            generalChannel = client.get_channel(744871234881454184)
+            await generalChannel.send('Hello ' + message.author.mention + '! Welcome to the Coffee Pit. Enjoy your stay!')
+        else:
+            await message.delete()
 
 @client.event
 async def on_ready():
@@ -27,6 +42,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    await verify(message)
     db.check_user(message, conn)
     global prefix
     global busy

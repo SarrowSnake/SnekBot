@@ -7,4 +7,5 @@ confPath = dirPath + '/config.json'
 dbPath = dirPath + '/snekbot.db'
 config = json.load(open(confPath))
 token = config['token']
-ownerId = config['owner_id']
+ownerId = int(config['owner_id'])
+moderatorId = config['moderator_id']

@@ -42,7 +42,7 @@ def check_player(message, conn):
             return True
         else:
             playerID = message.author.id
-            cur.execute("INSERT INTO coffee(player,money,bags_dark,beans) VALUES (?,?,?,?)", (playerID,0,0,0))
+            cur.execute("INSERT INTO coffee(player,money,bags_dark,beans,beans_overall) VALUES (?,?,?,?,?)", (playerID,0,0,0,0))
             conn.commit()
             return False
     except Error as e:
@@ -122,6 +122,7 @@ def plant_beans(message, conn):
         cur = conn.cursor()
         cur.execute("SELECT plant_date FROM coffee WHERE player=?", (message.author.id,))
         record = cur.fetchone()
+        checkEmpty = record[0]
         if(record[0] == None or record[0] == 0):
             cur.execute("UPDATE coffee SET plant_date=? WHERE player=?",( time.time(),message.author.id,))
             conn.commit()

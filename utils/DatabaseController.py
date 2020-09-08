@@ -179,9 +179,8 @@ def sell_bags(message, bagsToSell, conn):
         record = cur.fetchone()
         bagsRemaining = record[0] - bagsToSell
         if(bagsRemaining >= 0):
-            earnedMoney = 0
-            for x in range(bagsToSell):
-                earnedMoney += random.randint(10, 15)
+            lastPrice = get_last_prices(conn, 1)
+            earnedMoney = lastPrice[0][0]*bagsToSell
             totalMoney = record[1] + earnedMoney
             cur.execute("UPDATE coffee SET money=?, bags_dark=? WHERE player=?", (totalMoney, bagsRemaining, message.author.id))
             conn.commit()
@@ -191,3 +190,21 @@ def sell_bags(message, bagsToSell, conn):
     except Error as e:
         print(e)
         return -1
+
+def insert_price_tick(time, price, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO stocks(time, price) VALUES (?,?)", (time, price))
+        conn.commit()
+    except Error as e:
+        print(e)
+
+def get_last_prices(conn, amount):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT price FROM stocks ORDER BY stock_tick_id DESC")
+        records = cur.fetchmany(amount)
+        return records
+    except Error as e:
+        print(e)
+        return None

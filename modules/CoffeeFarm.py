@@ -71,6 +71,45 @@ def CoffeeFarm(client, conn):
             await ctx.message.channel.send('Can\'t retrive leaderboards. Try adding ``beans`` or ``money`` at the end of the command.')
 
     @client.command()
+    async def prices(ctx):
+        db.check_user(ctx.message, conn)
+        results = db.get_last_prices(conn, 13)
+        previousPrice = 0
+        resultHistory = []
+        outputString = ''
+
+        for result in reversed(results):
+            price = result[0]
+            diff = float("{:.2f}".format(price - previousPrice))
+            previousPrice = price
+            resultHistory.append((price, diff))
+        del resultHistory[0]
+        count = 0
+        for result in reversed(resultHistory):
+            hisPrice = result[0]
+            hisDiff = result[1]
+            if hisDiff < 0:
+                symbol = '\U0001F534'
+                diff = f'-${abs(hisDiff)}'
+                perc = '-{:.2f}%'.format(abs(hisDiff/hisPrice))
+            elif result[1] > 0:
+                symbol = '\U0001F7E2'
+                diff = f'+${abs(hisDiff)}'
+                perc = '+{:.2f}%'.format(abs(hisDiff/hisPrice))
+            else:
+                symbol = '\U000026AA'
+                diff = '$0'
+            outputString = f'{outputString}[{symbol} {perc}] **${hisPrice}** {diff} '
+            if count < 1:
+                outputString = f'{outputString} | **CURRENT**\n'
+                count += 1
+            else:
+                outputString = f'{outputString} | {count*5} minutes ago.\n'
+                count += 1
+        pricesEmbed = discord.Embed(title='Coffee Bean Selling Price History', description=outputString, colour=0x005064)
+        await ctx.message.channel.send(embed=pricesEmbed)
+
+    @client.command()
     async def plant(ctx):
         db.check_user(ctx.message, conn)
         if not(db.check_player(ctx.message, conn)):
@@ -95,7 +134,6 @@ def CoffeeFarm(client, conn):
         else:
             harvestedBeans = db.harvest_beans(ctx.message, conn)
             if(harvestedBeans >= 0):
-                ''' Harvest algorithm here '''
                 await ctx.message.channel.send('You harvested your coffee trees and got **' + f'{harvestedBeans:,}' + '** grams of green beans!')
             else:
                 await ctx.message.channel.send('You haven\'t ``$plant``ed any trees yet! .')

@@ -9,6 +9,12 @@ from utils import DatabaseController as db
 
 busy = False
 
+def ownerCheck(author):
+    if (author.id == cf.ownerId):
+        return True
+    else:
+        return False
+
 def moderatorCheck(author):
     if (get(author.roles, name='Moderator')  or (author.id == cf.ownerId)):
         return True
@@ -25,7 +31,7 @@ def Moderation(client, conn):
         if(moderatorCheck(ctx.author)):
             channelMessages = await ctx.message.channel.history(limit=arg+1).flatten()
             await ctx.message.channel.delete_messages(channelMessages)
-            embedMessage = '**' + str(arg) + '** messages have been deleted by **' + ctx.author.name + '**.'
+            embedMessage = f'**{arg}** messages have been deleted by **{ctx.author.name}**.'
             modEmbed = discord.Embed(title='Messages Deleted', description=embedMessage, colour=0x005064)
             await ctx.message.channel.send(embed=modEmbed)
         else:

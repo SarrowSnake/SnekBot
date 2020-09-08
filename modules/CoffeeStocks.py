@@ -17,7 +17,6 @@ def setSellPrice(oldPrice):
         priceMulti = 2
         randoMin = 0.65
     else:
-        randoMin = 0
         priceMulti = 1
 
     '''If price is almost hitting the minimum, force price to go up'''

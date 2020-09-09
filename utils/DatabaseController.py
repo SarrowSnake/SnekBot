@@ -28,6 +28,7 @@ def check_user(message, conn):
             username = message.author.name+"#"+message.author.discriminator
             cur.execute("INSERT INTO users(id,name) VALUES (?,?)", (message.author.id,username))
             conn.commit()
+            cur.close()
             return False
     except Error as e:
         print(e)
@@ -44,6 +45,7 @@ def check_player(message, conn):
             playerID = message.author.id
             cur.execute("INSERT INTO coffee(player,money,bags_dark,beans,beans_overall) VALUES (?,?,?,?,?)", (playerID,0,0,0,0))
             conn.commit()
+            cur.close()
             return False
     except Error as e:
         print(e)
@@ -53,6 +55,7 @@ def get_beans_leaderboards(conn):
         cur = conn.cursor()
         cur.execute("SELECT name, beans_overall FROM users INNER JOIN coffee on users.id = coffee.player ORDER BY beans_overall DESC")
         rows = cur.fetchmany(10)
+        cur.close()
         return rows
     except Error as e:
         print(e)
@@ -62,6 +65,7 @@ def get_money_leaderboards(conn):
         cur = conn.cursor()
         cur.execute("SELECT name, money FROM users INNER JOIN coffee on users.id = coffee.player ORDER BY money DESC")
         rows = cur.fetchmany(10)
+        cur.close()
         return rows
     except Error as e:
         print(e)
@@ -72,6 +76,7 @@ def get_beans(message, conn):
         cur.execute("SELECT beans FROM coffee WHERE player = ?", (message.author.id,))
 
         record = cur.fetchone()
+        cur.close()
         return record[0]
     except Error as e:
         print(e)
@@ -83,6 +88,7 @@ def get_money(message, conn):
         cur.execute("SELECT money FROM coffee WHERE player = ?", (message.author.id,))
 
         record = cur.fetchone()
+        cur.close()
         return record[0]
     except Error as e:
         print(e)
@@ -94,6 +100,7 @@ def get_bags_dark(message, conn):
         cur.execute("SELECT bags_dark FROM coffee WHERE player = ?", (message.author.id,))
 
         record = cur.fetchone()
+        cur.close()
         return record[0]
     except Error as e:
         print(e)
@@ -111,6 +118,7 @@ def make_beans(message, conn):
             newBeans = 0
         cur.execute("UPDATE coffee SET beans=? WHERE player=?", (newBeans,message.author.id,))
         conn.commit()
+        cur.close()
 
         return randNum
     except Error as e:
@@ -126,8 +134,10 @@ def plant_beans(message, conn):
         if(record[0] == None or record[0] == 0):
             cur.execute("UPDATE coffee SET plant_date=? WHERE player=?",( time.time(),message.author.id,))
             conn.commit()
+            cur.close()
             return True
         else:
+            cur.close()
             return False
     except Error as e:
         print(e)
@@ -151,8 +161,10 @@ def harvest_beans(message, conn):
             overallBeans = record[2] + harvestedBeans
             cur.execute("UPDATE coffee SET plant_date=?, beans=?, beans_overall=? WHERE player=?", (0, totalBeans, overallBeans, message.author.id))
             conn.commit()
+            cur.close()
             return harvestedBeans
         else:
+            cur.close()
             return -1
     except Error as e:
         print(e)
@@ -167,6 +179,7 @@ def roast_beans_dark(message, beans, conn):
         totalBags = record[1] + (beans/250)
         cur.execute("UPDATE coffee SET beans=?, bags_dark=? WHERE player=?", (remainingBeans, totalBags, message.author.id))
         conn.commit()
+        cur.close()
         return True
     except Error as e:
         print(e)
@@ -184,8 +197,10 @@ def sell_bags(message, bagsToSell, conn):
             totalMoney = record[1] + earnedMoney
             cur.execute("UPDATE coffee SET money=?, bags_dark=? WHERE player=?", (totalMoney, bagsRemaining, message.author.id))
             conn.commit()
+            cur.close()
             return earnedMoney
         else:
+            cur.close()
             return -1
     except Error as e:
         print(e)
@@ -196,6 +211,7 @@ def insert_price_tick(time, price, conn):
         cur = conn.cursor()
         cur.execute("INSERT INTO stocks(time, price) VALUES (?,?)", (time, price))
         conn.commit()
+        cur.close()
     except Error as e:
         print(e)
 
@@ -204,6 +220,7 @@ def get_last_prices(conn, amount):
         cur = conn.cursor()
         cur.execute("SELECT price FROM stocks ORDER BY stock_tick_id DESC")
         records = cur.fetchmany(amount)
+        cur.close()
         return records
     except Error as e:
         print(e)

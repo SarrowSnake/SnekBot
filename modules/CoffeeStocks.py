@@ -46,7 +46,7 @@ def setSellPrice(oldPrice):
 async def runCoffeeStocks(conn):
     while True:
         tickTime = time.time()
-        if round(tickTime % 300) == 0:
+        if round(tickTime % 1800) == 0:
             lastPrices = db.get_last_prices(conn, 1)
             oldPrice = lastPrices[0][0]
             newPrice = setSellPrice(oldPrice)
@@ -57,6 +57,6 @@ async def runCoffeeStocks(conn):
             debugNewestPrice = debugLastPrices[0][0]
             print(f'New stock price : {debugNewestPrice}')
             '''
-            await asyncio.sleep(299)
+            await asyncio.sleep(1798)
         else:
             await asyncio.sleep(0.5)

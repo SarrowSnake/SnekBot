@@ -90,23 +90,37 @@ def CoffeeFarm(client, conn):
             hisDiff = result[1]
             if hisDiff < 0:
                 symbol = '\U0001F534'
-                diff = f'-${abs(hisDiff)}'
+                diff = '-$' + '{:.2f}'.format(abs(hisDiff))
                 perc = '-{:.2f}%'.format(abs(hisDiff/hisPrice))
             elif result[1] > 0:
                 symbol = '\U0001F7E2'
-                diff = f'+${abs(hisDiff)}'
+                diff = '+$' + '{:.2f}'.format(abs(hisDiff))
                 perc = '+{:.2f}%'.format(abs(hisDiff/hisPrice))
             else:
                 symbol = '\U000026AA'
-                diff = '$0'
+                diff = '$0.00'
+            hisPrice = '{:.2f}'.format(float(hisPrice))
             outputString = f'{outputString}[{symbol} {perc}] **${hisPrice}** {diff} '
             if count < 1:
                 outputString = f'{outputString} | **CURRENT**\n'
-                count += 1
+                count += 30
             else:
-                outputString = f'{outputString} | {count*5} minutes ago.\n'
-                count += 1
-        pricesEmbed = discord.Embed(title='Coffee Bean Selling Price History', description=outputString, colour=0x005064)
+                if(count < 60):
+                    outputString = f'{outputString} | {count%60} minutes ago.\n'
+                elif(count % 60 == 0):
+                    outputString = f'{outputString} | {int(math.floor(count/60))} hours ago.\n'
+                else:
+                    outputString = f'{outputString} | {int(math.floor(count/60))} hours and {count%60} minutes ago.\n'
+                count += 30
+        pricesEmbed = discord.Embed(title='Coffee Price History', description=outputString, colour=0x005064)
+        nextTickTime = 1800 - int(math.floor(time.time() % 1800))
+        footerText = ''
+        if(nextTickTime > 60):
+            footerText = f'{footerText}Next tick : {int(math.floor(nextTickTime/60))} minutes and {int(math.floor(nextTickTime%60))} seconds.\n'
+        else:
+            footerText = f'{footerText}Next tick : {int(math.floor(nextTickTime%60))} seconds.\n'
+        footerText = f'{footerText}Prices are updated every 30 minutes.'
+        pricesEmbed.set_footer(text=footerText)
         await ctx.message.channel.send(embed=pricesEmbed)
 
     @client.command()

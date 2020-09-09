@@ -32,7 +32,7 @@ def Moderation(client, conn):
             channelMessages = await ctx.message.channel.history(limit=arg+1).flatten()
             await ctx.message.channel.delete_messages(channelMessages)
             embedMessage = f'**{arg}** messages have been deleted by **{ctx.author.name}**.'
-            modEmbed = discord.Embed(title='Messages Deleted', description=embedMessage, colour=0x005064)
+            modEmbed = discord.Embed(title='Messages Deleted', description=embedMessage, colour=0xAF5EE7)
             await ctx.message.channel.send(embed=modEmbed)
         else:
             await ctx.message.channel.send('You do not have access to this command.')

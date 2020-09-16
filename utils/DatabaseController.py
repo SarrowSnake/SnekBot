@@ -44,7 +44,7 @@ def check_player(message, conn):
             return True
         else:
             playerID = message.author.id
-            cur.execute("INSERT INTO coffee(player,money,bags,beans,beans_overall) VALUES (?,?,?,?,?)", (playerID,0,0,0,0))
+            cur.execute("INSERT INTO coffee(player,money,beans,trees,land,bags,beans_overall) VALUES (?,?,?,?,?,?,?)", (playerID,0,0,1,1,0,0))
             conn.commit()
             cur.close()
             return False

@@ -15,7 +15,7 @@ def BaseCommands(client):
 
     @client.command()
     async def shutdown(ctx):
-        if str(ctx.message.author.id) == conf.ownerId:
+        if ctx.message.author.id == conf.ownerId:
             await ctx.message.channel.send('Shutting down. Goodbye!')
             await client.change_presence(status=discord.Status.offline)
             exit()
@@ -26,18 +26,18 @@ def BaseCommands(client):
     async def notifyme(ctx):
         if get(ctx.author.roles, name='Updates'):
             await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role removed by user via bot command.')
-            roleEmbed = discord.Embed(title='Role Removed!', description='You are now opted out of announcements.', colour=0x005064)
+            roleEmbed = discord.Embed(title='Role Removed!', description='You are now opted out of announcements.', colour=conf.colourGeneral)
             await ctx.message.channel.send(embed=roleEmbed)
         else:
             await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role requested from user via bot command.')
-            roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=0x005064)
+            roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=conf.colourGeneral)
             await ctx.message.channel.send(embed=roleEmbed)
 
     ''' Note self : ilovecoffee command should be moved to actual moderator modules '''
     @client.command()
     async def ilovecoffee(ctx):
         await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Coffee Nerd'), reason='Role requested from user via bot command.')
-        roleEmbed = discord.Embed(title='Role Given!', description='You now have the Coffee Nerd role!', colour=0x005064)
+        roleEmbed = discord.Embed(title='Role Given!', description='You now have the Coffee Nerd role!', colour=conf.colourGeneral)
         await ctx.message.channel.send(embed=roleEmbed)
 
     @client.command()
@@ -49,36 +49,36 @@ def BaseCommands(client):
         if arg.lower() == "he" or arg.lower() == "him" or arg.lower() == "he/him":
             if get(ctx.author.roles, name='He/Him'):
                 await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
             else:
                 await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringMaleRole), colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringMaleRole), colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
         if arg.lower() == "she" or arg.lower() == "her" or arg.lower() == "she/her":
             if get(ctx.author.roles, name='She/Her'):
                 await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
             else:
                 await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringFemaleRole), colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringFemaleRole), colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
         if arg.lower() == "they" or arg.lower() == "them" or arg.lower() == "they/them":
             if get(ctx.author.roles, name='They/Them'):
                 await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
             else:
                 await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringNBRole), colour=0x005064)
+                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringNBRole), colour=conf.colourGeneral)
                 await ctx.message.channel.send(embed=roleEmbed)
 
         ''' Non-Essential commands '''
 
     @client.command()
     async def say(ctx, *, msg):
-        if str(ctx.author.id) == conf.ownerId:
+        if ctx.author.id == conf.ownerId:
             await ctx.message.delete()
             async with ctx.channel.typing():
                 await asyncio.sleep(3)
@@ -162,3 +162,7 @@ def BaseCommands(client):
             busy = False
             await asyncio.sleep(15)
             await countdownMessage.edit(content='Countdown finished.')
+
+    @client.command()
+    async def getavatar(ctx, arg: discord.User):
+        await ctx.message.channel.send(arg.avatar_url_as(format='png'))

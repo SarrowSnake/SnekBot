@@ -4,8 +4,8 @@ import Config as conf
 from discord.ext import commands
 from modules import BaseCommands
 from modules import CoffeeFarm
+from modules import CoffeeShop
 from modules import Moderation
-from modules import CoffeeStocks
 from utils import DatabaseController as db
 
 
@@ -18,10 +18,10 @@ bc = BaseCommands
 bc.BaseCommands(client)
 cf = CoffeeFarm
 cf.CoffeeFarm(client, conn)
+cs = CoffeeShop
+cs.CoffeeShop(client, conn)
 mod = Moderation
 mod.Moderation(client, conn)
-stk = CoffeeStocks
-'''Initialize processes'''
 
 
 async def verify(message):
@@ -51,7 +51,6 @@ async def on_ready():
     print('{0.user} is now running.'.format(client))
     channel = client.get_channel(744891551020482633)
     await channel.send('SnekBot booted up. Hello!')
-    await stk.runCoffeeStocks(conn)
 
 
 @client.event

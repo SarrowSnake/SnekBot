@@ -3,6 +3,7 @@ import math
 import random
 import sqlite3
 import time
+import Config as conf
 from sqlite3 import Error
 
 
@@ -43,7 +44,7 @@ def check_player(message, conn):
             return True
         else:
             playerID = message.author.id
-            cur.execute("INSERT INTO coffee(player,money,bags_dark,beans,beans_overall) VALUES (?,?,?,?,?)", (playerID,0,0,0,0))
+            cur.execute("INSERT INTO coffee(player,money,bags,beans,beans_overall) VALUES (?,?,?,?,?)", (playerID,0,0,0,0))
             conn.commit()
             cur.close()
             return False
@@ -82,6 +83,30 @@ def get_beans(message, conn):
         print(e)
         return 0
 
+def get_trees(message, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT trees FROM coffee WHERE player = ?", (message.author.id,))
+
+        record = cur.fetchone()
+        cur.close()
+        return record[0]
+    except Error as e:
+        print(e)
+        return 0
+
+def get_land(message, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT land FROM coffee WHERE player = ?", (message.author.id,))
+
+        record = cur.fetchone()
+        cur.close()
+        return record[0]
+    except Error as e:
+        print(e)
+        return 0
+
 def get_money(message, conn):
     try:
         cur = conn.cursor()
@@ -94,10 +119,10 @@ def get_money(message, conn):
         print(e)
         return 0
 
-def get_bags_dark(message, conn):
+def get_bags(message, conn):
     try:
         cur = conn.cursor()
-        cur.execute("SELECT bags_dark FROM coffee WHERE player = ?", (message.author.id,))
+        cur.execute("SELECT bags FROM coffee WHERE player = ?", (message.author.id,))
 
         record = cur.fetchone()
         cur.close()
@@ -105,6 +130,20 @@ def get_bags_dark(message, conn):
     except Error as e:
         print(e)
         return 0
+
+def get_plant_status(message, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT plant_date FROM coffee WHERE player = ?", (message.author.id,))
+        record = cur.fetchone()
+        cur.close()
+        if record[0] > 0:
+            return True
+        else:
+            return False
+    except Error as e:
+        print(e)
+        return False
 
 def make_beans(message, conn):
     try:
@@ -151,12 +190,16 @@ def harvest_beans(message, conn):
         if(record[0] != 0 or (record is None)):
             cur.execute
             timeDelta = math.floor(time.time() - record[0])
+            trees = get_trees(message, conn)
             '''The multiplier in the future will be increased as planned upgrades get implemented.'''
             multiplier=1
-            beanRate = (72/5)*multiplier
-            minVal = math.floor((timeDelta/beanRate)*0.75)
-            maxVal = math.floor(timeDelta/beanRate)
+            beanRate = (162/5)*multiplier
+            maxBeans = trees * conf.harvestLimit
+            minVal = math.floor(trees*(timeDelta/beanRate)*0.75)
+            maxVal = math.floor(trees*(timeDelta/beanRate))
             harvestedBeans = random.randint(int(minVal), int(maxVal))
+            if harvestedBeans > maxBeans:
+                harvestedBeans = maxBeans
             totalBeans = harvestedBeans + int(record[1])
             overallBeans = record[2] + harvestedBeans
             cur.execute("UPDATE coffee SET plant_date=?, beans=?, beans_overall=? WHERE player=?", (0, totalBeans, overallBeans, message.author.id))
@@ -170,14 +213,14 @@ def harvest_beans(message, conn):
         print(e)
         return -1
 
-def roast_beans_dark(message, beans, conn):
+def roast_beans(message, beans, conn):
     try:
         cur = conn.cursor()
-        cur.execute("SELECT beans, bags_dark FROM coffee WHERE player=?", (message.author.id,))
+        cur.execute("SELECT beans, bags FROM coffee WHERE player=?", (message.author.id,))
         record = cur.fetchone()
         remainingBeans = record[0] - beans
         totalBags = record[1] + (beans/250)
-        cur.execute("UPDATE coffee SET beans=?, bags_dark=? WHERE player=?", (remainingBeans, totalBags, message.author.id))
+        cur.execute("UPDATE coffee SET beans=?, bags=? WHERE player=?", (remainingBeans, totalBags, message.author.id))
         conn.commit()
         cur.close()
         return True
@@ -185,17 +228,52 @@ def roast_beans_dark(message, beans, conn):
         print(e)
         return False
 
+def buy_trees(message, treesToBuy, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT money, trees FROM coffee WHERE player=?", (message.author.id,))
+        record = cur.fetchone()
+        currentMoney = record[0]
+        currentTrees = record[1]
+        treeFees = treesToBuy * conf.treePrice
+        newTrees = currentTrees + treesToBuy
+        updatedMoney = currentMoney - treeFees
+        cur.execute("UPDATE coffee SET trees=?, money=? WHERE player=?", (newTrees, updatedMoney, message.author.id))
+        conn.commit()
+        cur.close()
+    except Error as e:
+        print(e)
+        return
+
+def buy_land(message, landToBuy, conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT money, land FROM coffee WHERE player=?", (message.author.id,))
+        record = cur.fetchone()
+        currentMoney = record[0]
+        currentLand = record[1]
+        landFees = landToBuy * conf.landPrice
+        newLand = currentLand + landToBuy
+        updatedMoney = currentMoney - landFees
+        cur.execute("UPDATE coffee SET trees=?, money=? WHERE player=?", (newLand, updatedMoney, message.author.id))
+        conn.commit()
+        cur.close()
+    except Error as e:
+        print(e)
+        return
+
+
 def sell_bags(message, bagsToSell, conn):
     try:
         cur = conn.cursor()
-        cur.execute("SELECT bags_dark, money FROM coffee WHERE player=?", (message.author.id,))
+        cur.execute("SELECT bags, money FROM coffee WHERE player=?", (message.author.id,))
         record = cur.fetchone()
         bagsRemaining = record[0] - bagsToSell
         if(bagsRemaining >= 0):
             lastPrice = get_last_prices(conn, 1)
             earnedMoney = lastPrice[0][0]*bagsToSell
             totalMoney = record[1] + earnedMoney
-            cur.execute("UPDATE coffee SET money=?, bags_dark=? WHERE player=?", (totalMoney, bagsRemaining, message.author.id))
+            cur.execute("UPDATE coffee SET money=?, bags=? WHERE player=?", (totalMoney, bagsRemaining, message.author.id))
             conn.commit()
             cur.close()
             return earnedMoney

@@ -2,12 +2,10 @@ import asyncio
 import discord
 import time
 import math
-import random
-import Config
+import Config as conf
 from utils import DatabaseController as db
 
 busy = False
-
 
 async def introMessage(message):
     async with message.channel.typing():
@@ -27,22 +25,25 @@ def CoffeeFarm(client, conn):
     global db
 
     @client.command()
-    async def beans(ctx):
+    async def status(ctx):
         db.check_user(ctx.message, conn)
         if not(db.check_player(ctx.message, conn)):
             await introMessage(ctx.message)
         else:
+            userAvatar = ctx.author.avatar_url
+            bags = db.get_bags(ctx.message, conn)
             beans = db.get_beans(ctx.message, conn)
-            await ctx.message.channel.send('You have **' + f'{beans:,}' + '** grams of green beans')
-
-    @client.command()
-    async def money(ctx):
-        db.check_user(ctx.message, conn)
-        if not(db.check_player(ctx.message, conn)):
-            await introMessage(ctx.message)
-        else:
             money = db.get_money(ctx.message, conn)
-            await ctx.message.channel.send('You have **$' + f'{money:,}' + '**')
+            trees = db.get_trees(ctx.message, conn)
+            land = db.get_land(ctx.message, conn)
+            statusEmbed = discord.Embed(title=ctx.author.display_name, colour=conf.colourCoffee)
+            statusEmbed.add_field(name='Green Beans', value=f'{beans:,} grams.', inline=True)
+            statusEmbed.add_field(name='Bags', value=f'{bags:,} bags.', inline=True)
+            statusEmbed.add_field(name='Trees', value=f'{trees:,} trees.', inline=False)
+            statusEmbed.add_field(name='Land', value=f'{land:,} acres.', inline=True)
+            statusEmbed.add_field(name='Money', value=f'${money:,.2f}', inline=False)
+            statusEmbed.set_thumbnail(url=userAvatar)
+            await ctx.message.channel.send(embed=statusEmbed)
 
     @client.command()
     async def leaderboards(ctx, arg):
@@ -55,7 +56,7 @@ def CoffeeFarm(client, conn):
                     name = result[0]
                     beans = result[1]
                     outputString = outputString + ("**" + name + "** with **" + f'{beans:,}' + "** grams of green beans.\n")
-            leaderEmbed = discord.Embed(title='Leaderboards - Top 10 Coffee Producer', description=outputString, colour=0x005064)
+            leaderEmbed = discord.Embed(title='Leaderboards - Top 10 Coffee Producer', description=outputString, colour=conf.colourCoffee)
             await ctx.message.channel.send(embed=leaderEmbed)
         elif(arg.lower() == 'money'):
             results = db.get_money_leaderboards(conn)
@@ -64,11 +65,13 @@ def CoffeeFarm(client, conn):
                 if(result[1] > 0):
                     name = result[0]
                     money = result[1]
-                    outputString = outputString + ("**" + name + "** with **$" + f'{money:,}' + "**\n")
-            leaderEmbed = discord.Embed(title='Leaderboards - Top 10 Wealthiest', description=outputString, colour=0x005064)
+                    outputString = f'{outputString}**{name}** with **${money:,.2f}**\n'
+            leaderEmbed = discord.Embed(title='Leaderboards - Top 10 Wealthiest', description=outputString, colour=conf.colourCoffee)
             await ctx.message.channel.send(embed=leaderEmbed)
         else:
-            await ctx.message.channel.send('Can\'t retrive leaderboards. Try adding ``beans`` or ``money`` at the end of the command.')
+            outputString = 'Invalid option. Try adding ``beans`` or ``money`` at the end of the command.'
+            leaderEmbed = discord.Embed(title='Can\'t Retrieve Leaderboards.', description=outputString, colour=conf.colourCoffee)
+            await ctx.message.channel.send(embed=leaderEmbed)
 
     @client.command()
     async def prices(ctx):
@@ -112,7 +115,7 @@ def CoffeeFarm(client, conn):
                 else:
                     outputString = f'{outputString} | {int(math.floor(count/60))} hours and {count%60} minutes ago.\n'
                 count += 30
-        pricesEmbed = discord.Embed(title='Coffee Price History', description=outputString, colour=0x005064)
+        pricesEmbed = discord.Embed(title='Coffee Price History', description=outputString, colour=conf.colourCoffee)
         nextTickTime = 1800 - int(math.floor(time.time() % 1800))
         footerText = ''
         if(nextTickTime > 60):
@@ -136,9 +139,13 @@ def CoffeeFarm(client, conn):
             async with ctx.message.channel.typing():
                 await asyncio.sleep(3)
         if(db.plant_beans(ctx.message, conn)):
-            await ctx.message.channel.send('Your coffee tree have been planted! Please wait a while until it\'s ready to harvest.')
+            outputString = 'Your coffee tree have been planted! Please wait a while until it\'s ready to harvest.'
+            plantEmbed = discord.Embed(title='Coffee has been Planted!', description=outputString, colour=conf.colourCoffee)
+            await ctx.message.channel.send(embed=plantEmbed)
         else:
-            await ctx.message.channel.send('You\'ve already planted a tree!')
+            outputString = 'You\'ve already planted a tree!'
+            plantEmbed = discord.Embed(title='Coffee Already Planted!', description=outputString, colour=conf.colourCoffee)
+            await ctx.message.channel.send(embed=plantEmbed)
 
     @client.command()
     async def harvest(ctx):
@@ -148,18 +155,13 @@ def CoffeeFarm(client, conn):
         else:
             harvestedBeans = db.harvest_beans(ctx.message, conn)
             if(harvestedBeans >= 0):
-                await ctx.message.channel.send('You harvested your coffee trees and got **' + f'{harvestedBeans:,}' + '** grams of green beans!')
+                outputString = 'You harvested your coffee trees and got **' + f'{harvestedBeans:,}' + '** grams of green beans!'
+                harvestEmbed = discord.Embed(title='Coffee Harvested!', description=outputString, colour=conf.colourCoffee)
+                await ctx.message.channel.send(embed=harvestEmbed)
             else:
-                await ctx.message.channel.send('You haven\'t ``$plant``ed any trees yet! .')
-
-    @client.command()
-    async def bags(ctx):
-        db.check_user(ctx.message, conn)
-        if not(db.check_player(ctx.message, conn)):
-            await introMessage(ctx.message)
-        else:
-            bags = db.get_bags_dark(ctx.message, conn)
-            await ctx.message.channel.send('[Dark Roast] You have **' + f'{bags:,}' + '** bags.')
+                outputString = 'You haven\'t ``$plant``ed any trees yet! .'
+                harvestEmbed = discord.Embed(title='No Coffee to Harvest!', description=outputString, colour=conf.colourCoffee)
+                await ctx.message.channel.send(embed=harvestEmbed)
 
     @client.command()
     async def roast(ctx, *arg):
@@ -188,45 +190,16 @@ def CoffeeFarm(client, conn):
                     await ctx.message.channel.send('You currently only have **' + f'{beansToRoast:,}' + '** grams of beans. You need at least 250 grams to make a bag.')
                 else:
                     await ctx.message.channel.send('Using **' + f'{beansToRoast:,}' + '** grams of green beans to make **' + f'{bags:,}' + '** bags.')
-                    roastMessage = await ctx.message.channel.send('Roasting')
-                    if db.roast_beans_dark(ctx.message, beansToRoast, conn):
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='Roasting.')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='Roasting..')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='Roasting...')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Light] Roasting')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Light] Roasting.')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Light] Roasting..')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Light] Roasting...')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Medium] Roasting')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Medium] Roasting.')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Medium] Roasting..')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Medium] Roasting...')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Dark] Roasting')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Dark] Roasting.')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Dark] Roasting..')
-                        await asyncio.sleep(1)
-                        await roastMessage.edit(content='[Dark] Roasting...')
-                        await asyncio.sleep(1)
+                    if db.roast_beans(ctx.message, beansToRoast, conn):
                         beans = db.get_beans(ctx.message, conn)
-                        await roastMessage.edit(content='Done! You have **' + f'{beans:,}' + '** grams of green beans remaining.')
+                        outputString = f'Done! You have **{beans:,}** grams of green beans remaining.'
+                        roastEmbed = discord.Embed(title='Beans Roasted!', description=outputString, colour=conf.colourCoffee)
+                        await ctx.message.send(embed=roastEmbed)
                     else:
                         await ctx.message.channel.send('Something went wrong.')
         except ValueError:
             await ctx.message.channel.send('Please use a number. Example : ``$roast 2``')
+
 
     @client.command()
     async def sell(ctx, arg):
@@ -235,8 +208,14 @@ def CoffeeFarm(client, conn):
         if(bags > 0):
             revenue = db.sell_bags(ctx.message, bags, conn)
             if(revenue >= 0):
-                await ctx.message.channel.send('You earned **$' + f'{revenue:,}' + '**')
+                outputString = f'You\'ve earned **${revenue:,.2f}** from selling **{bags}** bags.'
+                sellEmbed = discord.Embed(title='Coffee Sold!', description=outputString, colour=conf.colourCoffee)
+                await ctx.message.channel.send(embed=sellEmbed)
             else:
-                await ctx.message.channel.send('You don\'t have any bags to sell.')
+                outputString = f'You don\'t have any bags to sell. Try roasting your green beans by doing ``$roast [# of bags]``!'
+                sellEmbed = discord.Embed(title='No Bags!', description=outputString, colour=conf.colourCoffee)
+                await ctx.message.channel.send(embed=sellEmbed)
         else:
-            await ctx.message.channel.send('You need to at least sell 1 bag!')
+            outputString = f'You need to sell at least 1 bag!'
+            sellEmbed = discord.Embed(title='Invalid Bag Ammount.', description=outputString, colour=conf.colourCoffee)
+            await ctx.message.channel.send(embed=sellEmbed)

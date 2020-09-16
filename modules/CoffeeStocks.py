@@ -4,6 +4,7 @@ import random
 import sched, time
 from utils import DatabaseController as db
 
+tickRate = 60 * 30 #change this number for number of minutes
 minPrice = 10
 maxPrice = 20
 
@@ -43,10 +44,11 @@ def setSellPrice(oldPrice):
     newPrice = float("{:.2f}".format(newPrice))
     return newPrice
 
-async def runCoffeeStocks(conn):
+def runCoffeeStocks(conn):
+    global tickRate
     while True:
         tickTime = time.time()
-        if round(tickTime % 1800) == 0:
+        if round(tickTime % tickRate) == 0:
             lastPrices = db.get_last_prices(conn, 1)
             oldPrice = lastPrices[0][0]
             newPrice = setSellPrice(oldPrice)
@@ -57,6 +59,6 @@ async def runCoffeeStocks(conn):
             debugNewestPrice = debugLastPrices[0][0]
             print(f'New stock price : {debugNewestPrice}')
             '''
-            await asyncio.sleep(1798)
+            time.sleep(tickRate-2)
         else:
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)

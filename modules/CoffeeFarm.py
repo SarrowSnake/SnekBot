@@ -36,12 +36,17 @@ def CoffeeFarm(client, conn):
             money = db.get_money(ctx.message, conn)
             trees = db.get_trees(ctx.message, conn)
             land = db.get_land(ctx.message, conn)
-            statusEmbed = discord.Embed(title=ctx.author.display_name, colour=conf.colourCoffee)
+            outputString = f'**Money** : ${money:,.2f}' + '\n=====================\n' + f'**Green Beans** : {beans:,} grams.' + '\n' + f'**Bags** : {bags:,} bags.' + '\n' + f'**Trees** : {trees:,} trees.' + '\n' + f'**Land** : {land:,} acres.'
+
+            statusEmbed = discord.Embed(title=ctx.author.display_name, description=outputString, colour=conf.colourCoffee)
+            # Alternate
+            """
             statusEmbed.add_field(name='Green Beans', value=f'{beans:,} grams.', inline=True)
             statusEmbed.add_field(name='Bags', value=f'{bags:,} bags.', inline=True)
             statusEmbed.add_field(name='Trees', value=f'{trees:,} trees.', inline=False)
             statusEmbed.add_field(name='Land', value=f'{land:,} acres.', inline=True)
             statusEmbed.add_field(name='Money', value=f'${money:,.2f}', inline=False)
+            """
             statusEmbed.set_thumbnail(url=userAvatar)
             await ctx.message.channel.send(embed=statusEmbed)
 

@@ -23,8 +23,7 @@ def CoffeeShop(client, conn):
             outputString = itemTrees + '\n' + itemLand
             shopEmbed = discord.Embed(title='Shop', description=outputString, colour=conf.colourCoffee)
             footerString = '$buy [item name] [amount]'
-            tempString = footerString + '\nWORK IN PROGRESS. DO NOT USE.'
-            shopEmbed.set_footer(text=tempString)
+            shopEmbed.set_footer(text=footerString)
             await ctx.message.channel.send(embed=shopEmbed)
 
     @client.command()

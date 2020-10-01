@@ -255,7 +255,7 @@ def buy_land(message, landToBuy, conn):
         landFees = landToBuy * conf.landPrice
         newLand = currentLand + landToBuy
         updatedMoney = currentMoney - landFees
-        cur.execute("UPDATE coffee SET trees=?, money=? WHERE player=?", (newLand, updatedMoney, message.author.id))
+        cur.execute("UPDATE coffee SET land=?, money=? WHERE player=?", (newLand, updatedMoney, message.author.id))
         conn.commit()
         cur.close()
     except Error as e:

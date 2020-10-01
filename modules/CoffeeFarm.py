@@ -194,12 +194,11 @@ def CoffeeFarm(client, conn):
                 if(beansToRoast < 250):
                     await ctx.message.channel.send('You currently only have **' + f'{beansToRoast:,}' + '** grams of beans. You need at least 250 grams to make a bag.')
                 else:
-                    await ctx.message.channel.send('Using **' + f'{beansToRoast:,}' + '** grams of green beans to make **' + f'{bags:,}' + '** bags.')
                     if db.roast_beans(ctx.message, beansToRoast, conn):
                         beans = db.get_beans(ctx.message, conn)
-                        outputString = f'Done! You have **{beans:,}** grams of green beans remaining.'
+                        outputString = f'Done! You\'ve used **{beansToRoast:,}** beans to make **{bags:,}** bags. You have **{beans:,}** grams of green beans remaining.'
                         roastEmbed = discord.Embed(title='Beans Roasted!', description=outputString, colour=conf.colourCoffee)
-                        await ctx.message.send(embed=roastEmbed)
+                        await ctx.message.channel.send(embed=roastEmbed)
                     else:
                         await ctx.message.channel.send('Something went wrong.')
         except ValueError:
@@ -213,7 +212,7 @@ def CoffeeFarm(client, conn):
         if(bags > 0):
             revenue = db.sell_bags(ctx.message, bags, conn)
             if(revenue >= 0):
-                outputString = f'You\'ve earned **${revenue:,.2f}** from selling **{bags}** bags.'
+                outputString = f'You\'ve earned **${revenue:,.2f}** from selling **{bags:,}** bags.'
                 sellEmbed = discord.Embed(title='Coffee Sold!', description=outputString, colour=conf.colourCoffee)
                 await ctx.message.channel.send(embed=sellEmbed)
             else:

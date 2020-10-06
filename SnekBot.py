@@ -77,4 +77,9 @@ async def on_message(message):
 
     await client.process_commands(message)
 
+
+@client.event
+async def on_member_join(member):
+    await member.add_roles(discord.utils.get(member.guild.roles, name='Verification'), reason='New User Joined.')
+
 client.run(token)

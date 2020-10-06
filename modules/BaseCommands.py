@@ -12,11 +12,57 @@ def BaseCommands(client):
     global busy
 
     ''' Essential commands '''
+    @client.command()
+    async def help(ctx, arg: str=None):
+        #initialize help message Variable
+        helpMessage = ''
+        helpTitle = 'Help'
+        commandsArray = []
+        helpColour = conf.colourGeneral
+        if arg is None:
+            #Print all basic commands here
+            #String template : f'``{conf.prefix}name`` : description.'
+            commandsArray.append(f'``{conf.prefix}notifyme`` : Add/Remove the Updates role to yourself. Use this to get notified for future server/bot updates.')
+            commandsArray.append(f'``{conf.prefix}ilovecoffee`` : Add/Remove the Coffee Nerd role to yourself.')
+            commandsArray.append(f'``{conf.prefix}pronoun [name]`` : Add/Remove a pronoun role. use ``$pronoun`` to show a list of available pronouns.')
+            commandsArray.append(f'``{conf.prefix}equipment [name]`` : Add/Remove a role to show which coffee equipment you\'re using!')
+            commandsArray.append(f'``{conf.prefix}ctof [#]``/``{conf.prefix}ftoc [#]`` : Converts °C to °F or °F to °C.')
+            commandsArray.append(f'``{conf.prefix}facts`` : Have me tell you about a random coffee fact!')
+            commandsArray.append(f'``{conf.prefix}brew`` : Let me brew you a cup of coffee!')
+            for cmdRow in commandsArray:
+                helpMessage = f'{helpMessage}{cmdRow}\n'
+            helpMessage = f'{helpMessage}\nUse ``$help coffee`` for all Coffee Farming commands.'
+        elif arg.lower() == 'coffee':
+            #Print all coffee game commands here
+            helpTitle = f'{helpTitle} - Coffee Farming'
+            helpColour = conf.colourCoffee
+            commandsArray.append(f'``{conf.prefix}tutorial`` : Coming Soon!')
+            commandsArray.append(f'``{conf.prefix}status`` : Show your current player status.')
+            commandsArray.append(f'``{conf.prefix}leaderboards [beans/money]`` : Shows current available leaderboards.')
+            commandsArray.append(f'``{conf.prefix}prices`` : Shows current selling price for bags of coffee.')
+            commandsArray.append(f'``{conf.prefix}plant`` : Starts planting owned coffee trees!')
+            commandsArray.append(f'``{conf.prefix}harvest`` : Harvests all coffee tress.')
+            commandsArray.append(f'``{conf.prefix}roast [# of bags]`` : Roasts coffee beans and turns them into coffee bags! (250gr of coffee each)')
+            commandsArray.append(f'``{conf.prefix}sell [# of bags]`` : Sells specified number of coffee bags.')
+            for cmdRow in commandsArray:
+                helpMessage = f'{helpMessage}{cmdRow}\n'
+            helpMessage = f'{helpMessage}\nAll commands might be subject to change, behavior wise.'
+        else:
+            #Print error message here
+            helpTitle = f'{helpTitle} - Error'
+            helpColour = conf.colourSerious
+            helpMessage = f'Invalid argument. Try ``{conf.prefix}help`` or ``{conf.prefix}help coffee`` instead.'
+        helpEmbed = discord.Embed(title=helpTitle, description=helpMessage, colour=helpColour)
+        await ctx.message.channel.send(embed=helpEmbed)
+
 
     @client.command()
     async def shutdown(ctx):
         if ctx.message.author.id == conf.ownerId:
-            await ctx.message.channel.send('Shutting down. Goodbye!')
+            botAvatar = client.user.avatar_url
+            shutdownEmbed = discord.Embed(title='Goodbye!', description='Shutting down...', colour=conf.colourSerious)
+            shutdownEmbed.set_thumbnail(url=botAvatar)
+            await ctx.message.channel.send(embed=shutdownEmbed)
             await client.change_presence(status=discord.Status.offline)
             exit()
         else:
@@ -33,7 +79,7 @@ def BaseCommands(client):
             roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=conf.colourGeneral)
             await ctx.message.channel.send(embed=roleEmbed)
 
-    ''' Note self : ilovecoffee command should be moved to actual moderator modules '''
+    # Role Assigments
     @client.command()
     async def ilovecoffee(ctx):
         await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Coffee Nerd'), reason='Role requested from user via bot command.')
@@ -41,38 +87,85 @@ def BaseCommands(client):
         await ctx.message.channel.send(embed=roleEmbed)
 
     @client.command()
-    async def pronoun(ctx, arg):
+    async def pronoun(ctx, arg: str=None):
         stringRoleGiven = "You now identify as {}!"
         stringMaleRole = 'He/Him'
         stringFemaleRole = 'She/Her'
         stringNBRole = 'They/Them'
-        if arg.lower() == "he" or arg.lower() == "him" or arg.lower() == "he/him":
-            if get(ctx.author.roles, name='He/Him'):
-                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
-            else:
-                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringMaleRole), colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
-        if arg.lower() == "she" or arg.lower() == "her" or arg.lower() == "she/her":
-            if get(ctx.author.roles, name='She/Her'):
-                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
-            else:
-                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringFemaleRole), colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
-        if arg.lower() == "they" or arg.lower() == "them" or arg.lower() == "they/them":
-            if get(ctx.author.roles, name='They/Them'):
-                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role removed by user via bot command.')
-                roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
-            else:
-                await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role requested from user via bot command.')
-                roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringNBRole), colour=conf.colourGeneral)
-                await ctx.message.channel.send(embed=roleEmbed)
+        if arg is None:
+            #Print obtainable roles
+            pronounsList = f'He/Him\nShe/Her\nThey/Them'
+            roleEmbed = discord.Embed(title='Available Pronouns', description=pronounsList, colour=conf.colourGeneral)
+            await ctx.message.channel.send(embed=roleEmbed)
+        else:
+            if arg.lower() == "he" or arg.lower() == "him" or arg.lower() == "he/him":
+                if get(ctx.author.roles, name='He/Him'):
+                    await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role removed by user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+                else:
+                    await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringMaleRole), reason='Role requested from user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringMaleRole), colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+            if arg.lower() == "she" or arg.lower() == "her" or arg.lower() == "she/her":
+                if get(ctx.author.roles, name='She/Her'):
+                    await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role removed by user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+                else:
+                    await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringFemaleRole), reason='Role requested from user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringFemaleRole), colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+            if arg.lower() == "they" or arg.lower() == "them" or arg.lower() == "they/them":
+                if get(ctx.author.roles, name='They/Them'):
+                    await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role removed by user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Removed!', description='', colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+                else:
+                    await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=stringNBRole), reason='Role requested from user via bot command.')
+                    roleEmbed = discord.Embed(title='Role Given!', description=stringRoleGiven.format(stringNBRole), colour=conf.colourGeneral)
+                    await ctx.message.channel.send(embed=roleEmbed)
+
+    @client.command()
+    async def equipment(ctx, *, arg: str=None):
+        equipmentList = ['Cold Brew', 'French Press', 'AeroPress', 'Melitta', 'Chemex', 'V60', 'Moka Pot', 'Keurig', 'Manual Espresso', 'Super-Automatic', 'Semi-Automatic']
+        stringRoleGiven = 'You now have the {} role!'
+        if arg is None:
+            stringEquipments = 'List of available equipment roles :\n'
+            for eq in equipmentList:
+                stringEquipments = f'{stringEquipments}{eq}\n'
+                equipmentEmbed = discord.Embed(title='Equipment Roles', description=stringEquipments, colour=conf.colourGeneral)
+                equipmentEmbed.set_footer(text='\"$equipment clear\" to clear all equipment roles.')
+            await ctx.message.channel.send(embed=equipmentEmbed)
+        elif arg.lower() == 'clear':
+            clearingEmbed = discord.Embed(title='Clearing All Equipment Roles...', description='Please wait.', colour=conf.colourGeneral)
+            equipmentClearMessage = await ctx.message.channel.send(embed=clearingEmbed)
+            for eq in equipmentList:
+                await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=eq), reason='Role removed by user via bot command.')
+            stringEquipments = 'All equipment roles have been removed!'
+            equipmentEmbed = discord.Embed(title='Removed All Equipment Roles!', description=stringEquipments, colour=conf.colourGeneral)
+            await equipmentClearMessage.edit(embed=equipmentEmbed)
+        else:
+            arg = arg.lower()
+            if arg == 'manual':
+                arg = 'manual espresso'
+            if arg == 'super' or arg =='auto':
+                arg = 'super-automatic'
+            if arg == 'semi':
+                arg = 'semi-automatic'
+            for eq in equipmentList:
+                if arg == eq.lower():
+                    if get(ctx.author.roles, name=eq):
+                        await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=eq), reason='Role removed by user via bot command.')
+                        equipmentEmbed = discord.Embed(title='Equipment Role Removed!', description=f'The {eq} role has been removed!', colour=conf.colourGeneral)
+                    else:
+                        await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=eq), reason='Role requested from user via bot command.')
+                        equipmentEmbed = discord.Embed(title='Equipment Role Given!', description=stringRoleGiven.format(eq), colour=conf.colourGeneral)
+                    break
+                else:
+                    stringRoleNotFound = 'Your requested equipment role is not found. Try using the command without any arguments (example : ``$equipment``) for a list of available obtainable equipments.'
+                    equipmentEmbed = discord.Embed(title='Equipment Role Note Found!', description=stringRoleNotFound, colour=conf.colourSerious)
+            await ctx.message.channel.send(embed=equipmentEmbed)
 
         ''' Non-Essential commands '''
 
@@ -146,6 +239,42 @@ def BaseCommands(client):
                 await asyncio.sleep(3)
             await ctx.message.channel.send('Don\'t do that again please :broken_heart:')
             busy = False
+
+    @client.command()
+    async def ctof(ctx, arg: float=None):
+        if arg != None:
+            output = (9/5)*arg + 32
+            ctofEmbed = discord.Embed(title='C to F Conversion', description=f'{arg:.1f}°C is **{output:.1f}**°F', colour=conf.colourGeneral)
+        else:
+            ctofEmbed = discord.Embed(title='C to F Conversion', description='Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=ctofEmbed)
+
+    @client.command()
+    async def ftoc(ctx, arg: float=None):
+        if arg != None:
+            output = (arg-32)*5/9
+            ctofEmbed = discord.Embed(title='F to C Conversion', description=f'{arg:.1f}°F is **{output:.1f}**°C', colour=conf.colourGeneral)
+        else:
+            ctofEmbed = discord.Embed(title='F to C Conversion', description='Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=ctofEmbed)
+
+    @client.command()
+    async def oztog(ctx, arg: float=None):
+        if arg != None:
+            output = arg * 28.34952
+            oztogEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'{arg:.2f} ounces is **{output:.2f}** grams.', colour=conf.colourGeneral)
+        else:
+            oztogEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=oztogEmbed)
+
+    @client.command()
+    async def gtooz(ctx, arg: float=None):
+        if arg != None:
+            output = arg / 28.34952
+            gtoozEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'{arg:.2f} grams is **{output:.2f}** ounces.', colour=conf.colourGeneral)
+        else:
+            gtoozEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=gtoozEmbed)
 
     @client.command()
     async def countdown(ctx):

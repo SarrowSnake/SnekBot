@@ -26,6 +26,7 @@ def BaseCommands(client):
             commandsArray.append(f'``{conf.prefix}ilovecoffee`` : Add/Remove the Coffee Nerd role to yourself.')
             commandsArray.append(f'``{conf.prefix}pronoun [name]`` : Add/Remove a pronoun role. use ``$pronoun`` to show a list of available pronouns.')
             commandsArray.append(f'``{conf.prefix}equipment [name]`` : Add/Remove a role to show which coffee equipment you\'re using!')
+            commandsArray.append(f'``{conf.prefix}ctof [#]``/``{conf.prefix}ftoc [#]`` : Converts °C to °F or °F to °C.')
             commandsArray.append(f'``{conf.prefix}facts`` : Have me tell you about a random coffee fact!')
             commandsArray.append(f'``{conf.prefix}brew`` : Let me brew you a cup of coffee!')
             for cmdRow in commandsArray:
@@ -127,7 +128,7 @@ def BaseCommands(client):
 
     @client.command()
     async def equipment(ctx, *, arg: str=None):
-        equipmentList = ['Cold Brew', 'French Press', 'AeroPress', 'V60', 'Moka Pot', 'Manual Espresso', 'Super-Automatic', 'Semi-Automatic']
+        equipmentList = ['Cold Brew', 'French Press', 'AeroPress', 'Melitta', 'Chemex', 'V60', 'Moka Pot', 'Keurig', 'Manual Espresso', 'Super-Automatic', 'Semi-Automatic']
         stringRoleGiven = 'You now have the {} role!'
         if arg is None:
             stringEquipments = 'List of available equipment roles :\n'
@@ -238,6 +239,42 @@ def BaseCommands(client):
                 await asyncio.sleep(3)
             await ctx.message.channel.send('Don\'t do that again please :broken_heart:')
             busy = False
+
+    @client.command()
+    async def ctof(ctx, arg: float=None):
+        if arg != None:
+            output = (9/5)*arg + 32
+            ctofEmbed = discord.Embed(title='C to F Conversion', description=f'{arg:.1f}°C is **{output:.1f}**°F', colour=conf.colourGeneral)
+        else:
+            ctofEmbed = discord.Embed(title='C to F Conversion', description='Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=ctofEmbed)
+
+    @client.command()
+    async def ftoc(ctx, arg: float=None):
+        if arg != None:
+            output = (arg-32)*5/9
+            ctofEmbed = discord.Embed(title='F to C Conversion', description=f'{arg:.1f}°F is **{output:.1f}**°C', colour=conf.colourGeneral)
+        else:
+            ctofEmbed = discord.Embed(title='F to C Conversion', description='Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=ctofEmbed)
+
+    @client.command()
+    async def oztog(ctx, arg: float=None):
+        if arg != None:
+            output = arg * 28.34952
+            oztogEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'{arg:.2f} ounces is **{output:.2f}** grams.', colour=conf.colourGeneral)
+        else:
+            oztogEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=oztogEmbed)
+
+    @client.command()
+    async def gtooz(ctx, arg: float=None):
+        if arg != None:
+            output = arg / 28.34952
+            gtoozEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'{arg:.2f} grams is **{output:.2f}** ounces.', colour=conf.colourGeneral)
+        else:
+            gtoozEmbed = discord.Embed(title='Ounces to Grams Conversion', description=f'Please enter a number.', colour=conf.colourSerious)
+        await ctx.message.channel.send(embed=gtoozEmbed)
 
     @client.command()
     async def countdown(ctx):

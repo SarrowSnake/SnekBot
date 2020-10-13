@@ -11,7 +11,9 @@ from utils import DatabaseController as db
 
 conn = db.create_connection(conf.dbPath)
 token = conf.token
-client = commands.Bot(command_prefix=conf.prefix)
+intents = discord.Intents.default()
+intents.members = True
+client = commands.Bot(command_prefix=conf.prefix, intents=intents)
 client.remove_command('help')
 
 ''' Initialize commands '''
@@ -58,6 +60,7 @@ async def on_ready():
     botAvatar = client.user.avatar_url
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=conf.prefix+'help'))
     print('{0.user} is now running.'.format(client))
+    print('Discord.py version : ' + discord.__version__)
     channel = client.get_channel(744891551020482633)
     readyEmbed = discord.Embed(title='SnekBot Booted Up!', description='Hello!', colour=conf.colourGeneral)
     readyEmbed.set_thumbnail(url=botAvatar)

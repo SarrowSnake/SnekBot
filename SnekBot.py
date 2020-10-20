@@ -59,8 +59,9 @@ async def on_ready():
     global stk
     botAvatar = client.user.avatar_url
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=conf.prefix+'help'))
-    print('{0.user} is now running.'.format(client))
     print('Discord.py version : ' + discord.__version__)
+    print('{0.user} is now running.'.format(client))
+    print('Version : ' + conf.botVersion)
     channel = client.get_channel(744891551020482633)
     readyEmbed = discord.Embed(title='SnekBot Booted Up!', description='Hello!', colour=conf.colourGeneral)
     readyEmbed.set_thumbnail(url=botAvatar)

@@ -3,6 +3,7 @@ import json
 
 # Variables
 prefix = "$"
+botVersion = "0.2.2"
 dirPath = os.path.dirname(os.path.abspath(__file__))
 confPath = dirPath + '/config.json'
 dbPath = dirPath + '/snekbot.db'

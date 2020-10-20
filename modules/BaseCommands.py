@@ -13,6 +13,11 @@ def BaseCommands(client):
 
     ''' Essential commands '''
     @client.command()
+    async def about(ctx):
+        aboutMessage = f'Version : **{conf.botVersion}**'
+        aboutEmbed = discord.Embed(title='About SnekBot', description=aboutMessage, colour=conf.colourGeneral)
+        await ctx.message.channel.send(embed=aboutEmbed)
+
     async def help(ctx, arg: str=None):
         #initialize help message Variable
         helpMessage = ''
@@ -69,14 +74,28 @@ def BaseCommands(client):
             await ctx.message.channel.send('You are not authorized to use this command.')
 
     @client.command()
-    async def notifyme(ctx):
-        if get(ctx.author.roles, name='Updates'):
-            await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role removed by user via bot command.')
-            roleEmbed = discord.Embed(title='Role Removed!', description='You are now opted out of announcements.', colour=conf.colourGeneral)
+    async def notifyme(ctx, *, arg: str=None):
+        rolesList = ['Updates', 'Game Night'];
+        stringRoleGiven = 'You now have the {} role!'
+        if arg is None:
+            stringRole = 'List of available roles :\n'
+            for role in rolesList:
+                stringRole = f'{stringRole}{role}\n'
+                roleEmbed = discord.Embed(title='Obtainable Roles', description=stringRole, colour=conf.colourGeneral)
             await ctx.message.channel.send(embed=roleEmbed)
         else:
-            await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name='Updates'), reason='Role requested from user via bot command.')
-            roleEmbed = discord.Embed(title='Role Given!', description='You are now notified for future announcements!', colour=conf.colourGeneral)
+            for role in rolesList:
+                if arg.lower() == role.lower():
+                    if get(ctx.author.roles, name=role):
+                        await ctx.message.author.remove_roles(discord.utils.get(ctx.message.guild.roles, name=role), reason='Role removed by user via bot command.')
+                        roleEmbed = discord.Embed(title='Role Removed!', description=f'You are now opted out of {role}.', colour=conf.colourGeneral)
+                    else:
+                        await ctx.message.author.add_roles(discord.utils.get(ctx.message.guild.roles, name=role), reason='Role requested from user via bot command.')
+                        roleEmbed = discord.Embed(title='Role Given!', description=f'You are now notified for {role}!', colour=conf.colourGeneral)
+                    break
+                else:
+                    stringRoleNotFound = 'Your requested equipment role is not found. Try using the command without any arguments (example : ``$notifyme``) for a list of available obtainable roles.'
+                    roleEmbed = discord.Embed(title='Role Not Found!', description=stringRoleNotFound, colour=conf.colourSerious)
             await ctx.message.channel.send(embed=roleEmbed)
 
     # Role Assigments
@@ -164,7 +183,7 @@ def BaseCommands(client):
                     break
                 else:
                     stringRoleNotFound = 'Your requested equipment role is not found. Try using the command without any arguments (example : ``$equipment``) for a list of available obtainable equipments.'
-                    equipmentEmbed = discord.Embed(title='Equipment Role Note Found!', description=stringRoleNotFound, colour=conf.colourSerious)
+                    equipmentEmbed = discord.Embed(title='Equipment Role Not Found!', description=stringRoleNotFound, colour=conf.colourSerious)
             await ctx.message.channel.send(embed=equipmentEmbed)
 
         ''' Non-Essential commands '''
@@ -293,5 +312,8 @@ def BaseCommands(client):
             await countdownMessage.edit(content='Countdown finished.')
 
     @client.command()
-    async def getavatar(ctx, arg: discord.User):
-        await ctx.message.channel.send(arg.avatar_url_as(format='png'))
+    async def getavatar(ctx, arg: discord.User=None):
+        if arg is None:
+            await ctx.message.channel.send(ctx.message.author.avatar_url_as(format='png'))
+        else:
+            await ctx.message.channel.send(arg.avatar_url_as(format='png'))

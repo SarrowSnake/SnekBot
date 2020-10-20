@@ -14,8 +14,10 @@ def BaseCommands(client):
     ''' Essential commands '''
     @client.command()
     async def about(ctx):
+        botAvatar = client.user.avatar_url
         aboutMessage = f'Version : **{conf.botVersion}**'
         aboutEmbed = discord.Embed(title='About SnekBot', description=aboutMessage, colour=conf.colourGeneral)
+        aboutEmbed.set_thumbnail(botAvatar)
         await ctx.message.channel.send(embed=aboutEmbed)
 
     async def help(ctx, arg: str=None):
